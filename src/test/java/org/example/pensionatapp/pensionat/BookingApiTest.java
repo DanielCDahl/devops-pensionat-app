@@ -40,12 +40,26 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ContextConfiguration(initializers = BookingApiTest.EnvLoader.class)
 public class  BookingApiTest {
 
-    static class EnvLoader implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+    static class EnvLoader implements
+            ApplicationContextInitializer<ConfigurableApplicationContext> {
+
         @Override
-        public void initialize(ConfigurableApplicationContext applicationContext) {
-            Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-            dotenv.entries().forEach(entry -> System.setProperty(
-                    entry.getKey(), entry.getValue()));
+        public void initialize(
+                ConfigurableApplicationContext applicationContext) {
+
+            Dotenv dotenv = Dotenv.configure()
+                    .ignoreIfMissing()
+                    .load();
+
+            dotenv.entries().forEach(entry -> {
+                String key = entry.getKey();
+
+                if (System.getenv(key) == null &&
+                        System.getProperty(key) == null) {
+
+                    System.setProperty(key, entry.getValue());
+                }
+            });
         }
     }
 
